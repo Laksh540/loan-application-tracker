@@ -5,6 +5,7 @@ import type { LoanApplication, Status } from "../types/loans";
 import Input from "../components/Input";
 import Dropdown from "../components/Dropdown";
 import { formatCurrency, formatDate } from "../utils/format";
+import { StatusBadge } from "../components/Badge";
 
 const statusOptions = [
   { label: "All", value: "all" },
@@ -62,7 +63,11 @@ export default function ApplicationListPage() {
             header="Amount"
             body={(row) => formatCurrency(row.loanAmount)}
           />
-          <Column field="status" header="Status" />
+          <Column
+            field="status"
+            header="Status"
+            body={(row) => <StatusBadge status={row.status} />}
+          />
           <Column
             field="submittedDate"
             header="Submitted Date"
