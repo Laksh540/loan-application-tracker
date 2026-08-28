@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import Table, { type TableColumn } from "../components/Table";
+import Table, { Column } from "../components/Table";
 import { getApplications } from "../services/api";
 import type { LoanApplication, Status } from "../types/loans";
 import Input from "../components/Input";
 import Dropdown from "../components/Dropdown";
+import { formatCurrency } from "../utils/format";
 
 const statusOptions = [
   { label: "All", value: "all" },
@@ -12,14 +13,6 @@ const statusOptions = [
   { label: "Approved", value: "approved" },
   { label: "Rejected", value: "rejected" },
 ];
-const tableColumns: TableColumn<LoanApplication>[] = [
-  { key: "reference", header: "Reference" },
-  { key: "applicantName", header: "Applicant" },
-  { key: "loanAmount", header: "Amount" },
-  { key: "status", header: "Status" },
-  { key: "submittedDate", header: "Submitted Date" },
-];
-
 export default function ApplicationListPage() {
   const [applications, setApplications] = useState<LoanApplication[]>([]);
   const [search, setSearch] = useState("");
@@ -61,7 +54,17 @@ export default function ApplicationListPage() {
         />
       </div>
       <section className="mt-6 rounded-lg border p-4">
-        <Table data={filteredApplications} columns={tableColumns} />
+        <Table data={filteredApplications}>
+          <Column field="reference" header="Reference" />
+          <Column field="applicantName" header="Applicant" />
+          <Column
+            field="loanAmount"
+            header="Amount"
+            body={(row) => formatCurrency(row.loanAmount)}
+          />
+          <Column field="status" header="Status" />
+          <Column field="submittedDate" header="Submitted Date" />
+        </Table>
       </section>
     </main>
   );
