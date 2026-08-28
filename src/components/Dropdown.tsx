@@ -8,10 +8,16 @@ export interface DropdownOption {
 type DropdownProps = {
   value: string;
   options: DropdownOption[];
-  onChange: (value: string) => void;
+  onChange?: (value: string) => void;
+  disabled?: boolean;
 };
 
-export default function Dropdown({ value, options, onChange }: DropdownProps) {
+export default function Dropdown({
+  value,
+  options,
+  onChange,
+  disabled = false,
+}: DropdownProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -32,8 +38,9 @@ export default function Dropdown({ value, options, onChange }: DropdownProps) {
     <div ref={ref} className="relative w-48">
       <button
         type="button"
-        onClick={() => setOpen(!open)}
-        className="flex w-full items-center justify-between rounded border bg-white px-3 py-2"
+        onClick={() => !disabled && setOpen(!open)}
+        disabled={disabled}
+        className="flex w-full items-center justify-between rounded border bg-white px-3 py-2 disabled:cursor-default disabled:opacity-100"
       >
         <span>{selected?.label}</span>
         <span className={`transition ${open ? "rotate-180" : ""}`}>⌄</span>
@@ -46,7 +53,7 @@ export default function Dropdown({ value, options, onChange }: DropdownProps) {
               key={option.value}
               type="button"
               onClick={() => {
-                onChange(option.value);
+                onChange?.(option.value);
                 setOpen(false);
               }}
               className={`w-full px-3 py-2 text-left hover:bg-gray-100 ${

@@ -7,7 +7,8 @@ import Dropdown from "../components/Dropdown";
 import { formatCurrency, formatDate } from "../utils/format";
 import { StatusBadge } from "../components/Badge";
 import { TableLoadingState } from "../components/TableLoadingState";
-import ErrorState from "../components/TableErrorState";
+import { Link } from "react-router-dom";
+import ErrorState from "../components/ErrorState";
 import { TableEmptyState } from "../components/TableEmptyState";
 const statusOptions = [
   { label: "All", value: "all" },
@@ -107,7 +108,18 @@ export default function ApplicationListPage() {
               />
             }
           >
-            <Column field="reference" header="Reference" />
+            <Column
+              field="reference"
+              header="Reference"
+              body={(row) => (
+                <Link
+                  to={`/applications/${row.reference}`}
+                  className="font-medium text-blue-600 hover:underline"
+                >
+                  {row.reference}
+                </Link>
+              )}
+            />
             <Column field="applicantName" header="Applicant" />
             <Column
               field="loanAmount"

@@ -14,12 +14,12 @@ export const getApplications = async (): Promise<LoanApplication[]> => {
   return applications;
 };
 
-export const getApplicationById = async (
-  id: string,
+export const getApplicationByRefId = async (
+  reference: string,
 ): Promise<LoanApplication | undefined> => {
   await delay(500);
   if (shouldFail) {
     throw new Error("Mock API failure");
   }
-  return applications.find((app) => app.id === id);
+  return applications.find((app) => app.reference === reference);
 };
