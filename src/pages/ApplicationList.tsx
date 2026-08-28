@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Table, { type TableColumn } from "../components/Table";
 import { getApplications } from "../services/api";
 import type { LoanApplication, Status } from "../types/loans";
@@ -25,9 +25,18 @@ export default function ApplicationListPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<Status | "all">("all");
 
-  const filteredApplications = applications.filter((app) =>
-    app.applicantName.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filteredApplications = useMemo(() => {
+    return applications.filter((app) => {
+      const matchesSearch = app.applicantName
+        .toLowerCase()
+        .includes(search.toLowerCase());
+
+      const matchesStatus =
+        statusFilter === "all" || app.status === statusFilter;
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [applications, search, statusFilter]);
 
   useEffect(() => {
     getApplications().then(setApplications);
