@@ -1,4 +1,9 @@
-import { Children, isValidElement, type ReactElement, type ReactNode } from "react";
+import {
+  Children,
+  isValidElement,
+  type ReactElement,
+  type ReactNode,
+} from "react";
 
 type ColumnProps<T> = {
   field?: keyof T;
@@ -13,9 +18,14 @@ export function Column<T>(_props: ColumnProps<T>) {
 type TableProps<T extends object> = {
   data: T[];
   children: ReactElement<ColumnProps<T>> | ReactElement<ColumnProps<T>>[];
+  emptyMessage?: ReactNode;
 };
 
-export default function Table<T extends object>({ data, children }: TableProps<T>) {
+export default function Table<T extends object>({
+  data,
+  children,
+  emptyMessage,
+}: TableProps<T>) {
   const columns = Children.toArray(children).filter(
     (child): child is ReactElement<ColumnProps<T>> => isValidElement(child),
   );
@@ -33,19 +43,27 @@ export default function Table<T extends object>({ data, children }: TableProps<T
           </tr>
         </thead>
         <tbody>
-          {data.map((row, rowIndex) => (
-            <tr key={rowIndex} className="border-b hover:bg-gray-50">
-              {columns.map((column, columnIndex) => (
-                <td key={columnIndex} className="p-3">
-                  {column.props.body
-                    ? column.props.body(row)
-                    : column.props.field
-                      ? String(row[column.props.field])
-                      : null}
-                </td>
-              ))}
+          {data.length === 0 ? (
+            <tr>
+              <td colSpan={columns.length} className="p-3">
+                {emptyMessage}
+              </td>
             </tr>
-          ))}
+          ) : (
+            data.map((row, rowIndex) => (
+              <tr key={rowIndex} className="border-b hover:bg-gray-50">
+                {columns.map((column, columnIndex) => (
+                  <td key={columnIndex} className="p-3">
+                    {column.props.body
+                      ? column.props.body(row)
+                      : column.props.field
+                        ? String(row[column.props.field])
+                        : null}
+                  </td>
+                ))}
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>

@@ -6,7 +6,9 @@ import Input from "../components/Input";
 import Dropdown from "../components/Dropdown";
 import { formatCurrency, formatDate } from "../utils/format";
 import { StatusBadge } from "../components/Badge";
-
+import { TableLoadingState } from "../components/TableLoadingState";
+import ErrorState from "../components/TableErrorState";
+import { TableEmptyState } from "../components/TableEmptyState";
 const statusOptions = [
   { label: "All", value: "all" },
   { label: "Submitted", value: "submitted" },
@@ -18,6 +20,8 @@ export default function ApplicationListPage() {
   const [applications, setApplications] = useState<LoanApplication[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<Status | "all">("all");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const filteredApplications = useMemo(() => {
     return applications.filter((app) => {
@@ -32,8 +36,38 @@ export default function ApplicationListPage() {
     });
   }, [applications, search, statusFilter]);
 
+  const fetchApplications = async (isRetry = false) => {
+    if (isRetry) {
+      setLoading(true);
+    }
+
+    setError(null);
+
+    try {
+      const data = await getApplications();
+      setApplications(data);
+    } catch {
+      setError("Failed to load loan applications.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    getApplications().then(setApplications);
+    const loadApplications = async () => {
+      setError(null);
+
+      try {
+        const data = await getApplications();
+        setApplications(data);
+      } catch {
+        setError("Failed to load loan applications.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadApplications();
   }, []);
 
   return (
@@ -55,25 +89,43 @@ export default function ApplicationListPage() {
         />
       </div>
       <section className="mt-6 rounded-lg border p-4">
-        <Table data={filteredApplications}>
-          <Column field="reference" header="Reference" />
-          <Column field="applicantName" header="Applicant" />
-          <Column
-            field="loanAmount"
-            header="Amount"
-            body={(row) => formatCurrency(row.loanAmount)}
+        {loading ? (
+          <TableLoadingState />
+        ) : error ? (
+          <ErrorState
+            title="Something went wrong"
+            message={error}
+            onRetry={() => fetchApplications(true)}
           />
-          <Column
-            field="status"
-            header="Status"
-            body={(row) => <StatusBadge status={row.status} />}
-          />
-          <Column
-            field="submittedDate"
-            header="Submitted Date"
-            body={(row) => formatDate(row.submittedDate)}
-          />
-        </Table>
+        ) : (
+          <Table
+            data={filteredApplications}
+            emptyMessage={
+              <TableEmptyState
+                title="No applications found"
+                description="Try adjusting your search or status filter."
+              />
+            }
+          >
+            <Column field="reference" header="Reference" />
+            <Column field="applicantName" header="Applicant" />
+            <Column
+              field="loanAmount"
+              header="Amount"
+              body={(row) => formatCurrency(row.loanAmount)}
+            />
+            <Column
+              field="status"
+              header="Status"
+              body={(row) => <StatusBadge status={row.status} />}
+            />
+            <Column
+              field="submittedDate"
+              header="Submitted Date"
+              body={(row) => formatDate(row.submittedDate)}
+            />
+          </Table>
+        )}
       </section>
     </main>
   );
