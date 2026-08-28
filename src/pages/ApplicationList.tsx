@@ -1,10 +1,33 @@
 import { useEffect, useState } from "react";
-import ApplicationTable from "../components/ApplicationTable";
+import Table, { type TableColumn } from "../components/Table";
 import { getApplications } from "../services/api";
-import type { LoanApplication } from "../types/loans";
+import type { LoanApplication, Status } from "../types/loans";
+import Input from "../components/Input";
+import Dropdown from "../components/Dropdown";
+
+const statusOptions = [
+  { label: "All", value: "all" },
+  { label: "Submitted", value: "submitted" },
+  { label: "Under Review", value: "under_review" },
+  { label: "Approved", value: "approved" },
+  { label: "Rejected", value: "rejected" },
+];
+const tableColumns: TableColumn<LoanApplication>[] = [
+  { key: "reference", header: "Reference" },
+  { key: "applicantName", header: "Applicant" },
+  { key: "loanAmount", header: "Amount" },
+  { key: "status", header: "Status" },
+  { key: "submittedDate", header: "Submitted Date" },
+];
 
 export default function ApplicationListPage() {
   const [applications, setApplications] = useState<LoanApplication[]>([]);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<Status | "all">("all");
+
+  const filteredApplications = applications.filter((app) =>
+    app.applicantName.toLowerCase().includes(search.toLowerCase()),
+  );
 
   useEffect(() => {
     getApplications().then(setApplications);
@@ -13,9 +36,23 @@ export default function ApplicationListPage() {
   return (
     <main className="p-6">
       <h1 className="text-3xl font-bold">Loan Applications</h1>
-      <p className="mt-1 text-gray-600">Manage and review submitted loan applications.</p>
+      <p className="mt-1 text-gray-600">
+        Manage and review submitted loan applications.
+      </p>
+      <div className="mt-6 flex max-w-2xl gap-4">
+        <Input
+          value={search}
+          onChange={setSearch}
+          placeholder="Search by applicant..."
+        />
+        <Dropdown
+          value={statusFilter}
+          options={statusOptions}
+          onChange={(value) => setStatusFilter(value as Status | "all")}
+        />
+      </div>
       <section className="mt-6 rounded-lg border p-4">
-        <ApplicationTable applications={applications} />
+        <Table data={filteredApplications} columns={tableColumns} />
       </section>
     </main>
   );
