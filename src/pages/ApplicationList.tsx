@@ -4,7 +4,7 @@ import { getApplications } from "../services/api";
 import type { LoanApplication, Status } from "../types/loans";
 import Input from "../components/Input";
 import Dropdown from "../components/Dropdown";
-import { formatCurrency } from "../utils/format";
+import { formatCurrency, formatDate } from "../utils/format";
 
 const statusOptions = [
   { label: "All", value: "all" },
@@ -63,7 +63,11 @@ export default function ApplicationListPage() {
             body={(row) => formatCurrency(row.loanAmount)}
           />
           <Column field="status" header="Status" />
-          <Column field="submittedDate" header="Submitted Date" />
+          <Column
+            field="submittedDate"
+            header="Submitted Date"
+            body={(row) => formatDate(row.submittedDate)}
+          />
         </Table>
       </section>
     </main>
