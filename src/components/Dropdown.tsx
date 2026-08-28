@@ -9,14 +9,18 @@ type DropdownProps = {
   value: string;
   options: DropdownOption[];
   onChange?: (value: string) => void;
+  label?: string;
   disabled?: boolean;
+  readOnly?: boolean;
 };
 
 export default function Dropdown({
   value,
   options,
   onChange,
+  label,
   disabled = false,
+  readOnly = false,
 }: DropdownProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -35,12 +39,23 @@ export default function Dropdown({
   }, []);
 
   return (
-    <div ref={ref} className="relative w-48">
+    <div ref={ref} className="relative w-full">
+      {label && (
+        <label className="mb-1 block text-sm font-medium text-gray-600">
+          {label}
+        </label>
+      )}
       <button
         type="button"
-        onClick={() => !disabled && setOpen(!open)}
+        onClick={() => !disabled && !readOnly && setOpen(!open)}
         disabled={disabled}
-        className="flex w-full items-center justify-between rounded border bg-white px-3 py-2 disabled:cursor-default disabled:opacity-100"
+        className={`flex w-full items-center justify-between rounded border focus:border-transparent px-3 py-2 focus:ring-2 focus:ring-blue-700 ${
+          disabled
+            ? "cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400"
+            : readOnly
+              ? "cursor-default border-gray-200 bg-gray-50 text-gray-700"
+              : "border-gray-300 bg-white"
+        }`}
       >
         <span>{selected?.label}</span>
         <span className={`transition ${open ? "rotate-180" : ""}`}>⌄</span>

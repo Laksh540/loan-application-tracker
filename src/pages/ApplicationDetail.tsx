@@ -73,13 +73,28 @@ const ApplicationDetail = () => {
   ) : !application ? (
     <div>Application not found.</div>
   ) : (
-    <div className="mt-6 grid max-w-2xl gap-4">
-      <Input value={application.reference} readOnly />
-      <Input value={application.applicantName} readOnly />
-      <Input value={formatCurrency(application.loanAmount)} readOnly />
-      <Dropdown value={application.status} options={statusOptions} disabled />
-      <Input value={formatDate(application.submittedDate)} readOnly />
-      <Input value={application.purpose} readOnly />
+    <div className="mt-6 grid max-w-2xl grid-cols-1 gap-4 md:grid-cols-2">
+      <Input label="Reference" value={application.reference} readOnly />
+      <Dropdown
+        label="Status"
+        value={application.status}
+        options={statusOptions}
+        readOnly
+      />
+      <Input label="Applicant" value={application.applicantName} readOnly />
+      <Input
+        label="Submitted Date"
+        value={formatDate(application.submittedDate)}
+        readOnly
+      />
+      <Input
+        label="Loan Amount"
+        value={formatCurrency(application.loanAmount)}
+        readOnly
+      />
+      <div className="md:col-span-2">
+        <Input label="Purpose" value={application.purpose} readOnly />
+      </div>
     </div>
   );
 
