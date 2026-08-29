@@ -90,6 +90,28 @@ const ApplicationDetail = () => {
       .finally(() => setLoading(false));
   };
 
+  const onStatusChange = (nextStatus: Status) => {
+    const currentStatus = status ?? application.status;
+    const typedNextStatus = nextStatus as Status;
+
+    if (canTransition(currentStatus, typedNextStatus)) {
+      updateApplicationStatus(reference ?? "", typedNextStatus)
+        .then((updatedApplication) => {
+          setApplication(updatedApplication);
+          setStatus(updatedApplication.status);
+          setToastMessage(null);
+        })
+        .catch(() => {
+          setToastMessage("Failed to update application status.");
+        });
+      return;
+    }
+
+    setToastMessage(
+      `The application cannot move from ${statusOptions.find((option) => option.value === currentStatus)?.label} to ${statusOptions.find((option) => option.value === typedNextStatus)?.label}.`,
+    );
+  };
+
   const content = loading ? (
     <div
       className="mt-6 grid max-w-2xl gap-4"
@@ -132,27 +154,7 @@ const ApplicationDetail = () => {
             label="Status"
             value={status ?? application.status}
             options={statusOptions}
-            onChange={(nextStatus) => {
-              const currentStatus = status ?? application.status;
-              const typedNextStatus = nextStatus as Status;
-
-              if (canTransition(currentStatus, typedNextStatus)) {
-                updateApplicationStatus(reference ?? "", typedNextStatus)
-                  .then((updatedApplication) => {
-                    setApplication(updatedApplication);
-                    setStatus(updatedApplication.status);
-                    setToastMessage(null);
-                  })
-                  .catch(() => {
-                    setToastMessage("Failed to update application status.");
-                  });
-                return;
-              }
-
-              setToastMessage(
-                `The application cannot move from ${statusOptions.find((option) => option.value === currentStatus)?.label} to ${statusOptions.find((option) => option.value === typedNextStatus)?.label}.`,
-              );
-            }}
+            onChange={onStatusChange}
           />
         </div>
       </div>
