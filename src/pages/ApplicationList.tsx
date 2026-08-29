@@ -46,7 +46,8 @@ export default function ApplicationListPage() {
       <button
         type="button"
         onClick={() => handleSort(key)}
-        className="flex items-center gap-1 font-semibold"
+        aria-label={`Sort by ${label}`}
+        className="flex items-center gap-1 rounded font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
       >
         {label}
         {isActive ? (

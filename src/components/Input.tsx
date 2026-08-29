@@ -28,6 +28,7 @@ export default function Input({
         placeholder={placeholder}
         onChange={(e) => onChange?.(e.target.value)}
         readOnly={readOnly}
+        tabIndex={readOnly ? -1 : 0}
         className={`w-full rounded border px-3 py-2 ${
           readOnly
             ? "cursor-default border-gray-200 bg-gray-50 text-gray-700"
