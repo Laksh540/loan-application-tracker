@@ -10,6 +10,7 @@ import { TableLoadingState } from "../components/TableLoadingState";
 import { Link } from "react-router-dom";
 import ErrorState from "../components/ErrorState";
 import { TableEmptyState } from "../components/TableEmptyState";
+import Header from "../components/Header";
 const statusOptions = [
   { label: "All", value: "all" },
   { label: "Submitted", value: "submitted" },
@@ -73,10 +74,10 @@ export default function ApplicationListPage() {
 
   return (
     <main className="p-6">
-      <h1 className="text-3xl font-bold">Loan Applications</h1>
-      <p className="mt-1 text-gray-600">
-        Manage and review submitted loan applications.
-      </p>
+      <Header
+        title="Loan Applications"
+        description="Manage and review submitted loan applications."
+      />
       <div className="mt-6 flex max-w-2xl gap-4">
         <Input
           value={search}
