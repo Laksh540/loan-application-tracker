@@ -1,14 +1,7 @@
-import { Route, Routes } from "react-router-dom";
-import ApplicationListPage from "./pages/ApplicationList";
-import ApplicationDetail from "./pages/ApplicationDetail";
+import AppRouter from "./router/AppRouter";
 
 function App() {
-  return (
-    <Routes>
-      <Route path="/" element={<ApplicationListPage />} />
-      <Route path="/applications/:reference" element={<ApplicationDetail />} />
-    </Routes>
-  );
+  return <AppRouter />;
 }
 
 export default App;

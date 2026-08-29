@@ -1,75 +1,72 @@
-# React + TypeScript + Vite
+# Loan Application Tracker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React + TypeScript + Vite application for reviewing and managing loan applications.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- React Router
+- Vitest
 
-## React Compiler
+## Prerequisites
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Node.js **v22.22.3**
+- npm (included with Node.js)
 
-## Expanding the ESLint configuration
+## Installation
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+git clone <repository-url>
+cd loan-application-tracker
+cp .env.example .env
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+## Run the project
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm run dev
 ```
+
+The app will be available at the local Vite development URL shown in the terminal (typically `http://localhost:5173`).
+
+## Testing
+
+Run all unit and component tests:
+
+```bash
+npm test
+```
+
+## Project Structure
+
+```text
+src/
+├── components/     # Reusable UI components
+├── data/           # Mock loan application dataset
+├── pages/          # Route-level pages
+├── router/         # Centralized React Router configuration
+├── services/       # Mock API layer
+├── types/          # Shared TypeScript types
+├── utils/          # Status rules and helpers
+└── test/           # Test setup
+```
+
+The project separates UI, data, business logic, and types so each concern is easier to maintain and test. Route pages handle page composition, components remain reusable, the service layer isolates data access, and the centralized utilities keep business rules independent of the UI.
+
+## Status Transition Rules
+
+Application status transitions are centralized in `src/utils/statusRule.ts`.
+
+The application follows a forward-only workflow:
+
+`submitted → under_review → approved`
+
+`submitted → under_review → rejected`
+
+Backward transitions, skipped statuses, and changes from `approved` or `rejected` are not allowed.
+
+The `canTransition` utility is used by the application detail page to enforce these rules consistently.
