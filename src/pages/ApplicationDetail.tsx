@@ -72,7 +72,12 @@ const ApplicationDetail = () => {
       onRetry={onRetry}
     />
   ) : !application ? (
-    <div>Application not found.</div>
+    <div className="mt-6 rounded-lg border border-dashed border-gray-300 bg-white p-10 text-center">
+      <h2 className="text-xl font-semibold text-gray-900">Application not found</h2>
+      <p className="mt-2 text-sm text-gray-500">
+        The application you’re looking for doesn’t exist or may have been removed.
+      </p>
+    </div>
   ) : (
     <div className="mt-6 max-w-5xl rounded-lg border bg-white p-6">
       <div className="flex items-end justify-between gap-8 border-b pb-6">
