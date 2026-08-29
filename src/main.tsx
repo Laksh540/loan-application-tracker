@@ -5,6 +5,9 @@ import App from "./App.tsx";
 import "./index.css";
 import { BrowserRouter } from "react-router-dom";
 
+// import { canTransition } from "./utils/statusRule";
+
+// (window as any).canTransition = canTransition;
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>

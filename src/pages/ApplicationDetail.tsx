@@ -6,7 +6,10 @@ import { getApplicationByRefId } from "../services/api";
 import { formatCurrency, formatDate } from "../utils/format";
 import ErrorState from "../components/ErrorState";
 import Header from "../components/Header";
-import type { LoanApplication } from "../types/loans";
+
+import { canTransition } from "../utils/statusRule";
+import type { LoanApplication, Status } from "../types/loans";
+import { Toast } from "../components/Toast";
 
 const statusOptions = [
   { label: "Submitted", value: "submitted" },
@@ -18,8 +21,10 @@ const statusOptions = [
 const ApplicationDetail = () => {
   const { reference } = useParams<{ reference: string }>();
   const [application, setApplication] = useState<LoanApplication>();
+  const [status, setStatus] = useState<Status>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!reference) return;
@@ -31,6 +36,8 @@ const ApplicationDetail = () => {
       try {
         const data = await getApplicationByRefId(reference);
         setApplication(data);
+        setStatus(data.status);
+        setToastMessage(null);
       } catch {
         setError("Failed to load application details.");
       } finally {
@@ -48,7 +55,11 @@ const ApplicationDetail = () => {
     setError(null);
 
     getApplicationByRefId(reference)
-      .then(setApplication)
+      .then((data) => {
+        setApplication(data);
+        setStatus(data.status);
+        setToastMessage(null);
+      })
       .catch(() => setError("Failed to load application details."))
       .finally(() => setLoading(false));
   };
@@ -73,9 +84,12 @@ const ApplicationDetail = () => {
     />
   ) : !application ? (
     <div className="mt-6 rounded-lg border border-dashed border-gray-300 bg-white p-10 text-center">
-      <h2 className="text-xl font-semibold text-gray-900">Application not found</h2>
+      <h2 className="text-xl font-semibold text-gray-900">
+        Application not found
+      </h2>
       <p className="mt-2 text-sm text-gray-500">
-        The application you’re looking for doesn’t exist or may have been removed.
+        The application you’re looking for doesn’t exist or may have been
+        removed.
       </p>
     </div>
   ) : (
@@ -90,8 +104,22 @@ const ApplicationDetail = () => {
         <div className="w-56 shrink-0">
           <Dropdown
             label="Status"
-            value={application.status}
+            value={status ?? application.status}
             options={statusOptions}
+            onChange={(nextStatus) => {
+              const currentStatus = status ?? application.status;
+              const typedNextStatus = nextStatus as Status;
+
+              if (canTransition(currentStatus, typedNextStatus)) {
+                setStatus(typedNextStatus);
+                setToastMessage(null);
+                return;
+              }
+
+              setToastMessage(
+                `The application cannot move from ${statusOptions.find((option) => option.value === currentStatus)?.label} to ${statusOptions.find((option) => option.value === typedNextStatus)?.label}.`,
+              );
+            }}
           />
         </div>
       </div>
@@ -172,6 +200,9 @@ const ApplicationDetail = () => {
         linkTo="/"
       />
       {content}
+      {toastMessage && (
+        <Toast message={toastMessage} onClose={() => setToastMessage(null)} />
+      )}
     </main>
   );
 };
