@@ -11,6 +11,8 @@ import { Link } from "react-router-dom";
 import ErrorState from "../components/ErrorState";
 import { TableEmptyState } from "../components/TableEmptyState";
 import Header from "../components/Header";
+import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
+
 const statusOptions = [
   { label: "All", value: "all" },
   { label: "Submitted", value: "submitted" },
@@ -22,11 +24,46 @@ export default function ApplicationListPage() {
   const [applications, setApplications] = useState<LoanApplication[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<Status | "all">("all");
+  const [sortKey, setSortKey] = useState<"date" | "amount">("date");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const handleSort = (key: "date" | "amount") => {
+    if (sortKey === key) {
+      setSortDirection((direction) => (direction === "asc" ? "desc" : "asc"));
+      return;
+    }
+
+    setSortKey(key);
+    setSortDirection(key === "date" ? "desc" : "asc");
+  };
+
+  const renderSortHeader = (label: string, key: "date" | "amount") => {
+    const isActive = sortKey === key;
+
+    return (
+      <button
+        type="button"
+        onClick={() => handleSort(key)}
+        className="flex items-center gap-1 font-semibold"
+      >
+        {label}
+        {isActive ? (
+          sortDirection === "asc" ? (
+            <ArrowUp size={16} />
+          ) : (
+            <ArrowDown size={16} />
+          )
+        ) : (
+          <ArrowUpDown size={16} className="text-gray-400" />
+        )}
+      </button>
+    );
+  };
+
   const filteredApplications = useMemo(() => {
-    return applications.filter((app) => {
+    const filtered = applications.filter((app) => {
       const matchesSearch = app.applicantName
         .toLowerCase()
         .includes(search.toLowerCase());
@@ -36,7 +73,17 @@ export default function ApplicationListPage() {
 
       return matchesSearch && matchesStatus;
     });
-  }, [applications, search, statusFilter]);
+
+    return [...filtered].sort((a, b) => {
+      const comparison =
+        sortKey === "amount"
+          ? a.loanAmount - b.loanAmount
+          : new Date(a.submittedDate).getTime() -
+            new Date(b.submittedDate).getTime();
+
+      return sortDirection === "asc" ? comparison : -comparison;
+    });
+  }, [applications, search, statusFilter, sortKey, sortDirection]);
 
   const fetchApplications = async (isRetry = false) => {
     if (isRetry) {
@@ -124,7 +171,7 @@ export default function ApplicationListPage() {
             <Column field="applicantName" header="Applicant" />
             <Column
               field="loanAmount"
-              header="Amount"
+              header={renderSortHeader("Amount", "amount")}
               body={(row) => formatCurrency(row.loanAmount)}
             />
             <Column
@@ -134,7 +181,7 @@ export default function ApplicationListPage() {
             />
             <Column
               field="submittedDate"
-              header="Submitted Date"
+              header={renderSortHeader("Submitted Date", "date")}
               body={(row) => formatDate(row.submittedDate)}
             />
           </Table>

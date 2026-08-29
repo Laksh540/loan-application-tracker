@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Input from "../components/Input";
 import Dropdown from "../components/Dropdown";
-import { getApplicationByRefId } from "../services/api";
+import {
+  getApplicationByRefId,
+  updateApplicationStatus,
+} from "../services/api";
 import { formatCurrency, formatDate } from "../utils/format";
 import ErrorState from "../components/ErrorState";
 import Header from "../components/Header";
@@ -134,8 +137,15 @@ const ApplicationDetail = () => {
               const typedNextStatus = nextStatus as Status;
 
               if (canTransition(currentStatus, typedNextStatus)) {
-                setStatus(typedNextStatus);
-                setToastMessage(null);
+                updateApplicationStatus(reference ?? "", typedNextStatus)
+                  .then((updatedApplication) => {
+                    setApplication(updatedApplication);
+                    setStatus(updatedApplication.status);
+                    setToastMessage(null);
+                  })
+                  .catch(() => {
+                    setToastMessage("Failed to update application status.");
+                  });
                 return;
               }
 
